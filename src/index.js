@@ -1,56 +1,87 @@
 // write your code here
-const form = document.querySelector('form')
-form.addEventListener('submit', checkSubmit);
-let checkSubmit = event => {
-event.preventDefault()
-let menuObj ={
-    name: event.target.name.value,
-    restuarant: event.target.restuarant.value,
-    image: event.target.image.value,
-    rating: event.target.rating.value,
-    comment: event.target.comment.value
-}
-newRamen(menuObj)
-addRamen(menuObj )
-}
-let initialize = () => getRamen()
-let getRamen = () => {
-    fetch("http://localhost:3000/ramens")
-    .then (response => response.json())
-    .then (data => data.forEach(item => newRamen = () => {
+document.addEventListener('DOMContentLoaded', () => getImages())
 
-// let newRamen = item=>{
-let parentDiv = document.getElementById('ramen-menu')
-let image = document. createElement('img')
-image.addEventListener ('click', () => imageInfo(item.id))
-image.src = item.image
-parentDiv.append(image)
-}))}
-let imgInfo = id => {
-    fetch(`http://localhost:3000/ramens${id}`)
-    .then (response => response.json())
-    .then (data => {
-        let ramenDetails = document.getElementsById('ramen-detail');
-        let rating= document.getElementById('rating-display')
-        let comment =document.getElementById('comment-display')
-        ramenDetails.innerHTML =`
-        <img class ="detail-image" src="${data.image}" alt="Insert Name Here" />
-        <h2 class="name">${data.name}</h2>
-        <h3 class="restaurant">${data.restuarant}</h3>`;
-        rating.textContent = `${data.rating}`
-        comment.textContent = `${data.comment}`
+const ulList = document.querySelector('#ulList');
+
+let getImages = () => {
+    const url = 'http://localhost:3000/ramens';
+    fetch(url)
+    .then(res=>res.json())
+    .then(data=>{
+        data.forEach(imageObject=>{
+            image = imageObject.image;
+            imgname = imageObject.name;
+            restaurant = imageObject.restaurant;
+             rating = imageObject.rating;
+             comments = imageObject.comment;
+            showImage(image);
+        })
     })
 }
-let addRamen = (menu)=>{
-    fetch("http://localhost:3000/ramens",{
-        method : "POST",
+
+const showImage = imgUrl =>{
+     img = document.createElement('img');
+    const listEl = document.createElement('li');
+    img.src = imgUrl;
+    listEl.appendChild(img);
+    img.addEventListener('click', function(){
+        showDetails()
+    })
+    return   ulList.appendChild(listEl);
+}
+
+const showDetails = () =>{
+    fetch('http://localhost:3000/ramens')
+    .then(newResponse=>newResponse.json())
+    .then(result=>{result.forEach(restaurantObject=>{
+    const newImage = document.querySelector('.detail-image')
+    const detailsDiv = document.getElementById('ramen-detail');
+    const name = document.querySelector('.name');
+    const restaurant = document.querySelector('.restaurant');
+    const rating = document.querySelector('#rating-display');
+    const comment = document.querySelector('#comment-display');
+    const imageHolder = document.querySelector('.detail-image');
+    newImage.src = restaurantObject.image;
+    name.innerHTML=restaurantObject.name;
+    restaurant.innerHTML = restaurantObject.restaurant;
+    rating.innerHTML = restaurantObject.rating;
+    comment.innerHTML = restaurantObject.comment;
+    })
+    })
+}
+
+function addImage(username, userRestaurant, userRating, userImage, userComment){
+    const inputName = document.getElementById('new-name');
+    const inputRestaurant = document.getElementById('new-restaurant');
+    const inputRating = document.getElementById('new-rating');
+    const inputImg = document.getElementById('new-image');
+    const inputComment = document.getElementById('new-comment');
+
+    const ramenDetails = {
+        userName: inputName.value,
+        userRestaurant: inputRestaurant.value,
+        userRating: inputRating.value,
+        userImage: inputImg.src,
+        userComment: inputComment.value
+    }
+    const configurationObject =   {
+        method: 'POST', 
         headers: {
-            'Content-Type':"application/json",
-            Accept: 'application/json'
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
         },
-        body: JSON.stringify(menu)
-    })
-    .then(response => response.json())
-    .then(data => console.log(data))
+        body: JSON.stringify(ramenDetails),
+      }
+      fetch(url, configurationObject)
+      .then(res=>res.json())
+      .then(results=>
+        console.log("successful addition"))
 }
-initialize()
+
+const form = document.getElementById('new-ramen');
+console.log(addImage);
+form.addEventListener('submit', function(event) {
+    event.preventDefault();
+    addImage()
+    event.target.reset()
+})
